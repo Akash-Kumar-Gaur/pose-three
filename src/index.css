@@ -1,0 +1,47 @@
+@import url("https://fonts.cdnfonts.com/css/youtube-sans");
+
+body {
+  margin: 0;
+  font-family: "YouTube Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: var(--safe-height);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+:root {
+  --safe-height: 100dvh;
+}
+
+#root {
+  height: 100%;
+  /* min-height: calc(100dvh - 150px); */
+  overflow: auto;
+  /* max-width: 1366px; */
+  box-sizing: border-box;
+}
+
+#arview {
+  height: 100%;
+  width: 100%;
+}
+
+canvas {
+  z-index: 10 !important;
+}
+
+img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
+@supports not (height: 100dvh) {
+  :root {
+    --safe-height: calc(100vh - env(safe-area-inset-top));
+  }
+}
