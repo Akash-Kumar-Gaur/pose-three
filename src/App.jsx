@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import OutfitSelector from "./components/OutfitSelector";
 import ARView from "./components/ARView";
 import Entry from "./scenes/Entry/index";
+import ResultPreview from "./scenes/Result";
 import styles from "./index.module.scss";
+import ARViewDebug from "./components/ARView/ARViewDebug";
 
 export function pixelsToVW(pixels, designWidth = 1080) {
   return (pixels / designWidth) * 100 + "vw";
@@ -25,46 +27,51 @@ export function convertToPixels(value, unit) {
 }
 
 const App = () => {
-  const handleOutfitChange = (outfit) => {
-    console.log("Selected outfit:", outfit);
-  };
-
   const [currentState, setCurrentState] = useState(0);
-  const canvasRef = useRef(null);
-  const camKitRef = useRef(null);
-  const sessionRef = useRef(null);
-  const initialized = useRef(false);
-  const wMargin = convertToPixels(10, "vw");
-  const hMargin = convertToPixels(5, "vh");
-  const [gender, setGender] = useState("");
-  const [selectedType, setSelectedType] = useState("top");
+  // const wMargin = convertToPixels(10, "vw");
+  // const hMargin = convertToPixels(5, "vh");
+  // const [selectedType, setSelectedType] = useState("top");
   const [camImg, setCamImg] = useState(null);
-  const [lensId, setLensID] = useState("7b5be302-d60c-4381-9328-b3d0c317f278");
-  const [applying, setApplying] = useState(false);
-  const [autoApplied, setAutoApplied] = useState(false);
-  const [countdown, setCountdown] = useState(null);
   const [retake, setRetake] = useState(false);
 
   useEffect(() => {
-    localStorage.removeItem("genderSelect");
-  }, []);
+    !retake && localStorage.removeItem("genderSelect");
+  }, [retake]);
 
   return (
-    <div
-      className={styles.appWrapper}
-      style={{
-        textAlign: "center",
-        flexDirection: "column",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      {currentState === 0 ? <Entry setCurrentState={setCurrentState} /> : null}
-      {currentState === 1 ? (
-        <ARView wMargin={wMargin} hMargin={hMargin} />
+    <>
+      {currentState !== 1 ? (
+        <div
+          className={styles.appWrapper}
+          style={{
+            textAlign: "center",
+            flexDirection: "column",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {currentState === 0 ? (
+            <Entry setCurrentState={setCurrentState} />
+          ) : null}
+          {currentState === 2 ? (
+            <ResultPreview
+              camImg={camImg}
+              setCamImg={setCamImg}
+              setRetake={setRetake}
+              setCurrentState={setCurrentState}
+            />
+          ) : null}
+        </div>
       ) : null}
-    </div>
+      {currentState === 1 ? (
+        <ARViewDebug
+          setCamImg={setCamImg}
+          setCurrentState={setCurrentState}
+          retake={retake}
+        />
+      ) : null}
+    </>
   );
 };
 

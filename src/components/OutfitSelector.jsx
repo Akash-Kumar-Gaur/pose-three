@@ -8,7 +8,7 @@ const OutfitSelector = ({ onOutfitChange }) => {
   };
 
   return (
-    <div>
+    <div style={{ position: "absolute" }}>
       <input
         type="checkbox"
         id="outfit-switch"

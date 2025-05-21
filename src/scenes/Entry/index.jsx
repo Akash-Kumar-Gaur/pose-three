@@ -27,20 +27,20 @@ function Entry({ setCurrentState }) {
           <div
             className={styles.headline}
             style={{
-              fontSize: pixelsToVH(80),
+              fontSize: pixelsToVH(70),
             }}
           >
-            <span style={{ fontSize: pixelsToVH(50) }}>
-              Step Into Style with
+            {/* <span style={{ fontSize: pixelsToVH(50) }}>
+              LIKE IT. STYLE IT. OWN IT.
             </span>
-            <br />
-            YouTube AR Try-On!
+            <br /> */}
+            LIKE IT. STYLE IT. OWN IT.
             <div
               className={styles.leftAbs}
               style={{
                 width: pixelsToVW(88.5),
                 height: "auto",
-                top: pixelsToVH(-100),
+                top: pixelsToVH(-130),
                 left: pixelsToVW(-60),
               }}
             >
@@ -51,7 +51,7 @@ function Entry({ setCurrentState }) {
               style={{
                 width: pixelsToVW(161.3),
                 height: "auto",
-                top: pixelsToVH(-120),
+                top: pixelsToVH(-160),
                 right: pixelsToVW(-60),
               }}
             >
@@ -62,7 +62,7 @@ function Entry({ setCurrentState }) {
             className={styles.tagline}
             style={{ fontSize: pixelsToVH(47), marginTop: pixelsToVH(50) }}
           >
-            Experience fashion like never before with a virtual try-on.
+            Level up your look with YouTube AR Try-On!
           </div>
         </div>
         <div
@@ -70,8 +70,12 @@ function Entry({ setCurrentState }) {
           style={{
             width: pixelsToVW(590),
             height: "auto",
+            fontSize: pixelsToVH(31),
+            position: "relative",
+            zIndex: 50,
           }}
         >
+          Click here to start the experience.
           <img src={start} alt="start" onClick={() => setCurrentState(1)} />
         </div>
       </div>
