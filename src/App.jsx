@@ -29,7 +29,7 @@ const App = () => {
     console.log("Selected outfit:", outfit);
   };
 
-  const [currentState, setCurrentState] = useState(1);
+  const [currentState, setCurrentState] = useState(0);
   const canvasRef = useRef(null);
   const camKitRef = useRef(null);
   const sessionRef = useRef(null);

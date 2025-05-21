@@ -5,9 +5,11 @@ import { PoseEngine } from "@geenee/bodyprocessors";
 import { AvatarRenderer } from "./avatarrenderer";
 import Webcam from "react-webcam";
 import yts from "../../assests/ytshopping.png";
+import capture from "../../assests/capture.png";
 import styles from "../../index.module.scss";
 import { pixelsToVH, pixelsToVW } from "../../App";
 import bagRight from "../../assests/bagRight.png";
+import OutfitSelector from "../OutfitSelector";
 
 function ARView({ wMargin = 0, hMargin = 0 }) {
   const [gender, setGender] = useState("");
@@ -15,10 +17,7 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
   useEffect(() => {
     // Engine
     const engine = new PoseEngine();
-    const token =
-      location.hostname === "localhost"
-        ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
-        : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
+    const token = location.hostname === "localhost" ? "local" : "prod";
 
     // Parameters
     const urlParams = new URLSearchParams(window.location.search);
@@ -30,7 +29,7 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
         avatar: false,
         outfit: {
           occluders: [/Head$/, /Body/],
-          hidden: [/Eye/, /Teeth/, /Footwear/],
+          // hidden: [/Eye/, /Teeth/, /Footwear/],
         },
       },
       jacket: {
@@ -38,7 +37,7 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
         avatar: false,
         outfit: {
           occluders: [/Head$/, /Body/],
-          hidden: [/Eye/, /Teeth/, /Bottom/, /Footwear/, /Glasses/],
+          // hidden: [/Eye/, /Teeth/, /Bottom/, /Footwear/, /Glasses/],
         },
       },
     };
@@ -46,19 +45,19 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
     let avatar = modelMap["onesie"].avatar;
 
     // Create spinner element
-    function createSpinner() {
-      const spinner = document.createElement("div");
-      spinner.className = "boxes";
-      spinner.id = "spinner";
-      for (let i = 0; i < 4; i++) {
-        const box = document.createElement("div");
-        box.className = "box";
-        for (let j = 0; j < 4; j++)
-          box.appendChild(document.createElement("div"));
-        spinner.appendChild(box);
-      }
-      return spinner;
-    }
+    // function createSpinner() {
+    //   const spinner = document.createElement("div");
+    //   spinner.className = "boxes";
+    //   spinner.id = "spinner";
+    //   for (let i = 0; i < 4; i++) {
+    //     const box = document.createElement("div");
+    //     box.className = "box";
+    //     for (let j = 0; j < 4; j++)
+    //       box.appendChild(document.createElement("div"));
+    //     spinner.appendChild(box);
+    //   }
+    //   return spinner;
+    // }
 
     async function main() {
       // Renderer
@@ -71,24 +70,24 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
         modelMap[model].file,
         avatar ? undefined : modelMap[model].outfit
       );
-      // Camera switch
-      const cameraSwitch = document.getElementById("camera-switch");
-      if (cameraSwitch) {
-        cameraSwitch.onclick = async () => {
-          cameraSwitch.disabled = true;
-          rear = !rear;
-          await engine.setup({
-            size: {
-              width: window.innerWidth - wMargin,
-              height: window.innerHeight - hMargin,
-            },
-            rear,
-          });
-          await engine.start();
-          renderer.setMirror(!rear);
-          cameraSwitch.disabled = false;
-        };
-      }
+      // // Camera switch
+      // const cameraSwitch = document.getElementById("camera-switch");
+      // if (cameraSwitch) {
+      //   cameraSwitch.onclick = async () => {
+      //     // cameraSwitch.disabled = true;
+      //     rear = !rear;
+      //     await engine.setup({
+      //       size: {
+      //         width: window.innerWidth - wMargin,
+      //         height: window.innerHeight - hMargin,
+      //       },
+      //       rear,
+      //     });
+      //     await engine.start();
+      //     renderer.setMirror(!rear);
+      //     // cameraSwitch.disabled = false;
+      //   };
+      // }
       // Outfit switch
       const outfitSwitch = document.getElementById("outfit-switch");
       outfitSwitch.checked = avatar;
@@ -96,19 +95,14 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
         modelBtns.forEach((btn) => {
           btn.disabled = true;
         });
-        // outfitSwitch.disabled = true;
-        // const spinner = createSpinner();
-        // document.body.appendChild(spinner);
         avatar = outfitSwitch.checked;
         await renderer.setOutfit(
           modelMap[model].file,
           avatar ? undefined : modelMap[model].outfit
         );
-        // document.body.removeChild(spinner);
         modelBtns.forEach((btn) => {
           btn.disabled = false;
         });
-        // outfitSwitch.disabled = false;
       };
       // Model carousel
       const modelBtns = document.getElementsByName("model");
@@ -127,6 +121,10 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
               modelMap[model].file,
               avatar ? undefined : modelMap[model].outfit
             );
+            // await renderer.setOutfit(
+            //   modelMap[jacket].file,
+            //   avatar ? undefined : modelMap[jacket].outfit
+            // );
             // outfitSwitch.checked = avatar;
             // document.body.removeChild(spinner);
             modelBtns.forEach((btn) => {
@@ -140,7 +138,10 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
       await Promise.all([
         engine.addRenderer(renderer),
         engine.init({ token: token }),
-      ]);
+      ]).then(() => {
+        setLoaded(true);
+      });
+
       await engine.setup({
         size: {
           width: window.innerWidth - wMargin,
@@ -149,24 +150,24 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
         rear,
       });
       await engine.start();
-      // document.getElementById("loadui")?.remove();
     }
-    // main();
-    // <OutfitSelector onOutfitChange={handleOutfitChange} />
-  }, []);
+    if (gender !== "") {
+      main();
+    }
+  }, [gender]);
 
   const videoConstraints = {
-    width: window.innerWidth - wMargin,
-    height: window.innerHeight - hMargin,
+    width: window.innerWidth,
+    height: window.innerHeight,
     facingMode: "user",
   };
   return (
     <div
       className={styles.camBox}
-      style={{
-        width: window.innerWidth - wMargin,
-        height: window.innerHeight - hMargin,
-      }}
+      // style={{
+      //   width: window.innerWidth - wMargin,
+      //   height: window.innerHeight - hMargin,
+      // }}
     >
       <div
         className={styles.topLeft}
@@ -176,43 +177,78 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
       >
         <img src={yts} alt="ytShopping" />
       </div>
+      {!loaded ? (
+        <div
+          className={styles.center}
+          id="infoBox"
+          style={{
+            width: pixelsToVW(566),
+            zIndex: 2,
+            padding: `${pixelsToVH(30)} ${pixelsToVW(30)}`,
+          }}
+        >
+          <img
+            src={bagRight}
+            alt="bag"
+            style={{
+              width: pixelsToVW(100),
+              aspectRatio: 1,
+              top: pixelsToVH(-8),
+            }}
+          />
+          {!gender ? (
+            <div
+              style={{
+                fontSize: pixelsToVH(42),
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                margin: pixelsToVH(20),
+              }}
+            >
+              You’re On Screen!
+            </div>
+          ) : null}
+          <div
+            style={{
+              fontSize: pixelsToVH(27),
+              margin: pixelsToVH(gender ? 20 : 0),
+            }}
+          >
+            {!gender
+              ? "Use the panel below to select your look."
+              : "Stand straight and align yourself within the foot marker for best fit."}
+          </div>
+        </div>
+      ) : null}
+      <>
+        <div id="arview"></div>
+        <OutfitSelector />
+        {loaded ? (
+          <div
+            className={styles.captureBtn}
+            style={{
+              position: "absolute",
+              left: "50%",
+              transform: "translate(-50%, 0)",
+              width: pixelsToVW(145),
+              bottom: pixelsToVH(200),
+            }}
+          >
+            <img src={capture} alt="capture" />
+          </div>
+        ) : null}
+      </>
       <div
-        className={styles.center}
-        id="infoBox"
+        className={styles.dummyWebcam}
         style={{
-          width: pixelsToVW(566),
-          zIndex: 2,
-          padding: `${pixelsToVH(30)} ${pixelsToVW(30)}`,
+          position: "absolute",
+          zIndex: -1,
+          height: "100%",
+          width: "100%",
         }}
       >
-        <img
-          src={bagRight}
-          alt="bag"
-          style={{
-            width: pixelsToVW(100),
-            aspectRatio: 1,
-            top: pixelsToVH(-8),
-          }}
-        />
-        <div
-          style={{
-            fontSize: pixelsToVH(42),
-            fontWeight: "bold",
-            textTransform: "uppercase",
-            margin: pixelsToVH(20),
-          }}
-        >
-          You’re On Screen!
-        </div>
-        <div
-          style={{
-            fontSize: pixelsToVH(27),
-          }}
-        >
-          Use the panel below to select your look.
-        </div>
+        <Webcam videoConstraints={videoConstraints} />
       </div>
-      <Webcam videoConstraints={videoConstraints} />
       <div
         id="genselect"
         className={styles.bottom}
@@ -228,7 +264,7 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
           <button
             onClick={() => {
               setGender("male");
-              setLensID(MALE[0].lensId);
+              // setLensID(MALE[0].lensId);
               localStorage.setItem("genderSelect", "male");
               setTimeout(() => {
                 document.getElementById("genselect")?.remove();
@@ -248,7 +284,7 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
           <button
             onClick={() => {
               setGender("female");
-              setLensID(FEMALE[0].lensId);
+              // setLensID(FEMALE[0].lensId);
               localStorage.setItem("genderSelect", "female");
               setTimeout(() => {
                 document.getElementById("genselect")?.remove();
@@ -284,8 +320,6 @@ function ARView({ wMargin = 0, hMargin = 0 }) {
       ) : null} */}
     </div>
   );
-
-  // <Webcam videoConstraints={videoConstraints} />;
 }
 
 export default ARView;
