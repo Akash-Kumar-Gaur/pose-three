@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-import { PoseEngine } from "@geenee/bodyprocessors";
+import { FaceEngine, PoseEngine } from "@geenee/bodyprocessors";
 import { Snapshoter } from "@geenee/armature";
 import capture from "../../assests/clickBtn.png";
 import back from "../../assests/backBtn.png";
@@ -27,6 +27,7 @@ import female5 from "../../assests/outfits/female/female5.png";
 // Acc
 import glasses from "../../assests/glasses.png";
 import cap from "../../assests/cap.png";
+import { HatRenderer } from "./hatrenderer";
 
 function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   const [gender, setGender] = useState(localStorage.getItem("genderSelect"));
@@ -41,11 +42,50 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   });
 
   useEffect(() => {
+    const engine = new FaceEngine();
+    const token =
+      location.hostname === "localhost"
+        ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
+        : "prod.url_sdk_token";
+
+    let rear = false;
+
+    async function main() {
+      // Renderer
+      const container = document.getElementById("webarFace");
+      if (!container) return;
+      const renderer = new HatRenderer(container, "crop");
+      renderer.setMirror(!rear);
+      // Initialization
+      await Promise.all([
+        engine.addRenderer(renderer),
+        engine.init({ token: token, transform: true, metric: true }),
+      ]);
+      await engine.setup({ size: { width: 1920, height: 1080 }, rear });
+      await engine.start();
+      //   document.getElementById("loadui")?.remove();
+    }
+    if (accry) {
+      const ele = document.getElementById("engeenee.canvas.layer0");
+      if (ele) {
+        document
+          .querySelectorAll('[id="engeenee.canvas.layer1"]')
+          .forEach((el) => el.remove());
+        // document
+        //   .querySelectorAll('[id="engeenee.canvas.layer0"]')
+        //   .forEach((el) => el.remove());
+      }
+      document.getElementById("webarFace").style.display = "flex";
+      main();
+    }
+  }, [accry]);
+
+  useEffect(() => {
     // Engine
     const engine = new PoseEngine();
     const token =
       location.hostname === "localhost"
-        ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
+        ? "oRm1uD9WehOrYfpvyol489z9rXDHpukL"
         : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
 
     // Parameters
@@ -130,7 +170,9 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
         loadUi.remove();
       }
     }
-    main();
+    if (!accry) {
+      main();
+    }
     return () => {
       const ele = document.getElementById("engeenee.canvas.layer0");
       if (ele) {
@@ -142,7 +184,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
         //   .forEach((el) => el.remove());
       }
     };
-  }, []);
+  }, [accry]);
 
   const captureImage = async () => {
     const imageData = await snapShorterRef.current.snapshot();
@@ -336,6 +378,8 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
 
   const handleVariantSelect = (type, modelName) => {
     setAccry("");
+    localStorage.removeItem("accry");
+    document.getElementById("webarFace").style.display = "none";
     const isSelected = variant[type] === modelName;
     if (isSelected) {
       setVariant({
@@ -697,15 +741,17 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
               }}
               onClick={async () => {
                 if (accry !== "glasses") {
+                  localStorage.setItem("accry", "glasses");
                   setVariant({ top: "", bottom: "" });
                   loadStart(true);
                   setAccry("glasses");
-                  const model = "onesie.glb";
-                  await rendererRef.current.setOutfit(model, {
-                    occluders: [/Head$/, /Body/],
-                  });
+                  // const model = "onesie.glb";
+                  // await rendererRef.current.setOutfit(model, {
+                  //   occluders: [/Head$/, /Body/],
+                  // });
                 } else {
                   setAccry("");
+                  localStorage.removeItem("accry");
                 }
               }}
             >
@@ -739,15 +785,17 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
               }}
               onClick={async () => {
                 if (accry !== "cap") {
+                  localStorage.setItem("accry", "hat");
                   setVariant({ top: "", bottom: "" });
                   loadStart(true);
                   setAccry("cap");
-                  const model = "Jeans.glb";
-                  await rendererRef.current.setOutfit(model, {
-                    occluders: [/Head$/, /Body/],
-                  });
+                  // const model = "Jeans.glb";
+                  // await rendererRef.current.setOutfit(model, {
+                  //   occluders: [/Head$/, /Body/],
+                  // });
                 } else {
                   setAccry("");
+                  localStorage.removeItem("accry");
                 }
               }}
             >

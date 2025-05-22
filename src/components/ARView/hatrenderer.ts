@@ -38,7 +38,8 @@ export class HatRenderer extends FaceRenderer {
   // Setup scene
   protected async setupScene(scene: three.Scene) {
     // Hat
-    const hatGltf = await new GLTFLoader().loadAsync("hat.glb");
+    const model = localStorage.getItem("accry") || "hat";
+    const hatGltf = await new GLTFLoader().loadAsync(`${model}.glb`);
     scene.add(hatGltf.scene);
     this.hat = scene.getObjectByName("HeadTrack");
     if (this.hat) this.addPlugin(new HeadTrackPlugin(this.hat, true));
