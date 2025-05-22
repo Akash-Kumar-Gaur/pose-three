@@ -24,14 +24,17 @@ import female2 from "../../assests/outfits/female/female2.png";
 import female3 from "../../assests/outfits/female/female3.png";
 import female4 from "../../assests/outfits/female/female4.png";
 import female5 from "../../assests/outfits/female/female5.png";
+// Acc
+import glasses from "../../assests/glasses.png";
+import cap from "../../assests/cap.png";
 
 function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   const [gender, setGender] = useState(localStorage.getItem("genderSelect"));
   const [ready, setReady] = useState(retake);
-  const [selectedModel, setSelectedModel] = useState("");
   const snapShorterRef = useRef(null);
   const rendererRef = useRef(null);
   const [countdown, setCountdown] = useState(null);
+  const [accry, setAccry] = useState(false);
   const [variant, setVariant] = useState({
     top: "",
     bottom: "",
@@ -40,15 +43,13 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   useEffect(() => {
     // Engine
     const engine = new PoseEngine();
-    const token = "token";
-    // const token =
-    //   location.hostname === "localhost"
-    //     ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
-    //     : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
+    const token =
+      location.hostname === "localhost"
+        ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
+        : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
 
     // Parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    let rear = urlParams.has("rear");
+    let rear = false;
     // Model map
     const modelMap = {
       onesie: {
@@ -59,17 +60,9 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
           //   hidden: [/Eye/, /Teeth/, /Footwear/],
         },
       },
-      jacket: {
-        file: "jacket.glb",
-        avatar: false,
-        outfit: {
-          occluders: [/Head$/, /Body/],
-          //   hidden: [/Eye/, /Teeth/, /Bottom/, /Footwear/, /Glasses/],
-        },
-      },
     };
     let model = "onesie";
-    let avatar = modelMap["onesie"].avatar;
+    let avatar = false;
 
     // Create spinner element
     function createSpinner() {
@@ -138,6 +131,17 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
       }
     }
     main();
+    return () => {
+      const ele = document.getElementById("engeenee.canvas.layer0");
+      if (ele) {
+        document
+          .querySelectorAll('[id="engeenee.canvas.layer1"]')
+          .forEach((el) => el.remove());
+        // document
+        //   .querySelectorAll('[id="engeenee.canvas.layer0"]')
+        //   .forEach((el) => el.remove());
+      }
+    };
   }, []);
 
   const captureImage = async () => {
@@ -232,12 +236,9 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   };
 
   useEffect(() => {
-    console.warn("variant", variant);
-
     if (variant.top.length || variant.bottom.length) {
       const applyModel = async () => {
         const model = getModel(variant);
-        setSelectedModel(model);
         if (model) {
           loadStart(true);
           await rendererRef.current.setOutfit(model, {
@@ -288,7 +289,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
     {
       icon: male5,
       file: "onesie.glb",
-      name: "Trousers",
+      name: "Trouser",
       modelName: "Trouser",
       type: "bottom",
     },
@@ -325,7 +326,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
     {
       icon: female4,
       file: "onesie.glb",
-      name: "Trousers",
+      name: "Trouser",
       modelName: "GreyPant",
       type: "bottom",
     },
@@ -334,6 +335,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   const SLIDES = gender === "male" ? MALE_OUTFIT : FEMALE_OUTFIT;
 
   const handleVariantSelect = (type, modelName) => {
+    setAccry("");
     const isSelected = variant[type] === modelName;
     if (isSelected) {
       setVariant({
@@ -630,48 +632,144 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
           </div>
         )}
         <div
-          id="courosel"
           className="carousel"
           style={{
             visibility: ready ? "visible" : "hidden",
             left: pixelsToVW(40),
           }}
+          id="courosel"
         >
-          {SLIDES.map((entry, key) => {
-            const { icon, name, type, modelName } = entry;
-            const isSelected = modelName === variant[type];
-            return (
-              <div
-                key={`${modelName}-${key}`}
-                className={`${styles.item} carousel-item`}
-                style={{
-                  height: pixelsToVH(185),
-                  width: pixelsToVW(151),
-                  padding: `${pixelsToVH(10)} ${pixelsToVW(10)}`,
-                  borderRadius: pixelsToVH(10),
-                  outlineWidth: isSelected ? pixelsToVH(8) : 0,
-                }}
-                onClick={() => handleVariantSelect(type, modelName)}
-              >
-                <img
-                  src={icon}
-                  alt={name}
-                  style={{
-                    height: "auto",
-                    width: "100%",
-                    objectFit: "contain",
-                  }}
-                />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              left: 0,
+              flexDirection: "column",
+              gap: 20,
+            }}
+          >
+            {SLIDES.map((entry, key) => {
+              const { icon, name, type, modelName } = entry;
+              const isSelected = modelName === variant[type];
+              return (
                 <div
+                  key={`${modelName}-${key}`}
+                  className={`${styles.item} carousel-item`}
                   style={{
-                    fontSize: pixelsToVH(14),
+                    height: pixelsToVH(185),
+                    width: pixelsToVW(151),
+                    padding: `${pixelsToVH(10)} ${pixelsToVW(10)}`,
+                    borderRadius: pixelsToVH(10),
+                    outlineWidth: isSelected ? pixelsToVH(8) : 0,
                   }}
+                  onClick={() => handleVariantSelect(type, modelName)}
                 >
-                  {name}
+                  <img
+                    src={icon}
+                    alt={name}
+                    style={{
+                      height: "auto",
+                      width: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                  <div
+                    style={{
+                      fontSize: pixelsToVH(14),
+                    }}
+                  >
+                    {name}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+          <div style={{ display: "flex", gap: pixelsToVW(9) }}>
+            <div
+              className={`${styles.item} carousel-item`}
+              style={{
+                // height: pixelsToVH(78),
+                width: pixelsToVW(71),
+                padding: `${pixelsToVH(5)} ${pixelsToVW(5)}`,
+                borderRadius: pixelsToVH(10),
+                flex: 1,
+                outlineWidth: accry === "glasses" ? pixelsToVH(6) : 0,
+              }}
+              onClick={async () => {
+                if (accry !== "glasses") {
+                  setVariant({ top: "", bottom: "" });
+                  loadStart(true);
+                  setAccry("glasses");
+                  const model = "onesie.glb";
+                  await rendererRef.current.setOutfit(model, {
+                    occluders: [/Head$/, /Body/],
+                  });
+                } else {
+                  setAccry("");
+                }
+              }}
+            >
+              <img
+                src={glasses}
+                alt="glasses"
+                style={{
+                  height: pixelsToVH(64),
+                  width: "100%",
+                  objectFit: "contain",
+                  aspectRatio: 1,
+                }}
+              />
+              <div
+                style={{
+                  fontSize: pixelsToVH(14),
+                }}
+              >
+                Glasses
               </div>
-            );
-          })}
+            </div>
+            <div
+              className={`${styles.item} carousel-item`}
+              style={{
+                // height: pixelsToVH(78),
+                width: pixelsToVW(71),
+                padding: `${pixelsToVH(5)} ${pixelsToVW(5)}`,
+                borderRadius: pixelsToVH(10),
+                flex: 1,
+                outlineWidth: accry === "cap" ? pixelsToVH(6) : 0,
+              }}
+              onClick={async () => {
+                if (accry !== "cap") {
+                  setVariant({ top: "", bottom: "" });
+                  loadStart(true);
+                  setAccry("cap");
+                  const model = "Jeans.glb";
+                  await rendererRef.current.setOutfit(model, {
+                    occluders: [/Head$/, /Body/],
+                  });
+                } else {
+                  setAccry("");
+                }
+              }}
+            >
+              <img
+                src={cap}
+                alt="cap"
+                style={{
+                  height: pixelsToVH(64),
+                  width: "100%",
+                  objectFit: "contain",
+                  aspectRatio: 1,
+                }}
+              />
+              <div
+                style={{
+                  fontSize: pixelsToVH(14),
+                }}
+              >
+                Cap
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

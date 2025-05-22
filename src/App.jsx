@@ -27,7 +27,7 @@ export function convertToPixels(value, unit) {
 }
 
 const App = () => {
-  const [currentState, setCurrentState] = useState(0);
+  const [currentState, setCurrentState] = useState(1);
   // const wMargin = convertToPixels(10, "vw");
   // const hMargin = convertToPixels(5, "vh");
   // const [selectedType, setSelectedType] = useState("top");

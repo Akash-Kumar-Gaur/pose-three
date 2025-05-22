@@ -4,8 +4,8 @@ import { PoseResult } from "@geenee/bodyprocessors";
 import * as three from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+// import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+// import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 
 // Renderer
 export class AvatarRenderer extends PoseRenderer {
