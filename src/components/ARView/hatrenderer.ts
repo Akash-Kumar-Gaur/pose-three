@@ -83,34 +83,34 @@ export class HatRenderer extends FaceRenderer {
   }
 
   // Update
-  async update(result: FaceResult, stream: HTMLCanvasElement) {
-    // Analyze face keypoints to detect open mouth
-    const { transform = undefined, metric = undefined } = result.faces[0] || {};
-    if (!metric) {
-      this.mouthOpenness = 0;
-      this.mouthOpen = false;
-      return super.update(result, stream);
-    }
-    const left = new three.Vector3(...metric[78]);
-    const right = new three.Vector3(...metric[308]);
-    const top = new three.Vector3(...metric[13]);
-    const bottom = new three.Vector3(...metric[14]);
-    // Openness is ratio between height and width
-    // Add hysteresis when changing mouth state
-    this.mouthOpenness = top.distanceTo(bottom) / left.distanceTo(right);
-    if (this.mouthOpenness > 0.6) this.mouthOpen = true;
-    if (this.mouthOpenness < 0.5) this.mouthOpen = false;
-    // Position text model
-    const { textModel } = this;
-    if (textModel && transform) {
-      // Align model with mesh
-      textModel.setRotationFromQuaternion(
-        new three.Quaternion(...transform.rotation)
-      );
-      textModel.position.set(...transform.translation);
-      textModel.scale.setScalar(transform.scale);
-      textModel.visible = this.mouthOpen;
-    }
-    await super.update(result, stream);
-  }
+  // async update(result: FaceResult, stream: HTMLCanvasElement) {
+  //   // Analyze face keypoints to detect open mouth
+  //   const { transform = undefined, metric = undefined } = result.faces[0] || {};
+  //   if (!metric) {
+  //     this.mouthOpenness = 0;
+  //     this.mouthOpen = false;
+  //     return super.update(result, stream);
+  //   }
+  //   const left = new three.Vector3(...metric[78]);
+  //   const right = new three.Vector3(...metric[308]);
+  //   const top = new three.Vector3(...metric[13]);
+  //   const bottom = new three.Vector3(...metric[14]);
+  //   // Openness is ratio between height and width
+  //   // Add hysteresis when changing mouth state
+  //   this.mouthOpenness = top.distanceTo(bottom) / left.distanceTo(right);
+  //   if (this.mouthOpenness > 0.6) this.mouthOpen = true;
+  //   if (this.mouthOpenness < 0.5) this.mouthOpen = false;
+  //   // Position text model
+  //   const { textModel } = this;
+  //   if (textModel && transform) {
+  //     // Align model with mesh
+  //     textModel.setRotationFromQuaternion(
+  //       new three.Quaternion(...transform.rotation)
+  //     );
+  //     textModel.position.set(...transform.translation);
+  //     textModel.scale.setScalar(transform.scale);
+  //     textModel.visible = this.mouthOpen;
+  //   }
+  //   await super.update(result, stream);
+  // }
 }

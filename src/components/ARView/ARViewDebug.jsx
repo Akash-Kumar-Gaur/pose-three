@@ -46,7 +46,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
     const token =
       location.hostname === "localhost"
         ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
-        : "prod.url_sdk_token";
+        : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
 
     let rear = false;
 
@@ -71,9 +71,9 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
         document
           .querySelectorAll('[id="engeenee.canvas.layer1"]')
           .forEach((el) => el.remove());
-        // document
-        //   .querySelectorAll('[id="engeenee.canvas.layer0"]')
-        //   .forEach((el) => el.remove());
+        document
+          .querySelectorAll('[id="engeenee.canvas.layer0"]')
+          .forEach((el) => el.remove());
       }
       document.getElementById("webarFace").style.display = "flex";
       main();
@@ -179,9 +179,9 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
         document
           .querySelectorAll('[id="engeenee.canvas.layer1"]')
           .forEach((el) => el.remove());
-        // document
-        //   .querySelectorAll('[id="engeenee.canvas.layer0"]')
-        //   .forEach((el) => el.remove());
+        document
+          .querySelectorAll('[id="engeenee.canvas.layer0"]')
+          .forEach((el) => el.remove());
       }
     };
   }, [accry]);
@@ -377,9 +377,18 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   const SLIDES = gender === "male" ? MALE_OUTFIT : FEMALE_OUTFIT;
 
   const handleVariantSelect = (type, modelName) => {
-    setAccry("");
     localStorage.removeItem("accry");
     document.getElementById("webarFace").style.display = "none";
+    const ele = document.getElementById("engeenee.canvas.layer0");
+    if (ele && accry) {
+      document
+        .querySelectorAll('[id="engeenee.canvas.layer1"]')
+        .forEach((el) => el.remove());
+      document
+        .querySelectorAll('[id="engeenee.canvas.layer0"]')
+        .forEach((el) => el.remove());
+    }
+    setAccry("");
     const isSelected = variant[type] === modelName;
     if (isSelected) {
       setVariant({
@@ -393,6 +402,8 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
       });
     }
   };
+
+  const captureDisabled = !accry && !variant.top && !variant.bottom;
 
   return (
     <>
@@ -592,6 +603,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
               }}
               style={{
                 width: pixelsToVW(254),
+                opacity: captureDisabled ? 0.5 : 1,
               }}
             >
               <img
