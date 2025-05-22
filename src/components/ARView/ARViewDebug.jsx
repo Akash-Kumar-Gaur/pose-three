@@ -41,12 +41,17 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
     bottom: "",
   });
 
+  const prodToken =
+    location.hostname === "polite-salmiakki-1dc3f3.netlify.app"
+      ? "UMl-KTNDeZS-B38sk9J2cycGOm-2xlTK"
+      : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
+  const token =
+    location.hostname === "localhost"
+      ? "oRm1uD9WehOrYfpvyol489z9rXDHpukL"
+      : prodToken;
+
   useEffect(() => {
     const engine = new FaceEngine();
-    const token =
-      location.hostname === "localhost"
-        ? "AVSE9trnGfvPowd3z2f5cQW-FW87bF5t"
-        : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
 
     let rear = false;
 
@@ -57,6 +62,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
       const renderer = new HatRenderer(container, "crop");
       renderer.setMirror(!rear);
       // Initialization
+      snapShorterRef.current = new Snapshoter(renderer);
       await Promise.all([
         engine.addRenderer(renderer),
         engine.init({ token: token, transform: true, metric: true }),
@@ -83,10 +89,6 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
   useEffect(() => {
     // Engine
     const engine = new PoseEngine();
-    const token =
-      location.hostname === "localhost"
-        ? "oRm1uD9WehOrYfpvyol489z9rXDHpukL"
-        : "HiCltgzsHoEwIl02FxcrdhLy6wdabBmY";
 
     // Parameters
     let rear = false;
@@ -186,22 +188,147 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
     };
   }, [accry]);
 
+  // const captureImage = async () => {
+  //   const imageData = await snapShorterRef.current.snapshot();
+  //   if (imageData) {
+  //     const tempCanvas = document.createElement("canvas");
+  //     tempCanvas.width = imageData.width;
+  //     tempCanvas.height = imageData.height;
+  //     const tempCtx = tempCanvas.getContext("2d");
+  //     tempCtx.putImageData(imageData, 0, 0);
+  //     const canvas = document.createElement("canvas");
+  //     canvas.width = imageData.width;
+  //     canvas.height = imageData.height;
+  //     const ctx = canvas.getContext("2d");
+  //     ctx.translate(canvas.width, 0);
+  //     ctx.scale(-1, 1);
+  //     ctx.drawImage(tempCanvas, 0, 0);
+  //     const base64Image = canvas.toDataURL("image/png");
+  //     setCamImg(base64Image);
+  //     console.warn("base64Image", base64Image);
+
+  //     // setCurrentState(2);
+  //   }
+  // };
+  // const captureImage = async () => {
+  //   const imageData = await snapShorterRef.current.snapshot();
+  //   if (imageData) {
+  //     // Set target size based on the window dimensions
+  //     const targetWidth = window.innerWidth;
+  //     const targetHeight = window.innerHeight;
+
+  //     // Create a temporary canvas with the original image
+  //     const tempCanvas = document.createElement("canvas");
+  //     tempCanvas.width = imageData.width;
+  //     tempCanvas.height = imageData.height;
+  //     const tempCtx = tempCanvas.getContext("2d");
+  //     tempCtx.putImageData(imageData, 0, 0);
+
+  //     // Create a final canvas of window size
+  //     const canvas = document.createElement("canvas");
+  //     canvas.width = targetWidth;
+  //     canvas.height = targetHeight;
+  //     const ctx = canvas.getContext("2d");
+
+  //     // Flip horizontally
+  //     ctx.translate(canvas.width, 0);
+  //     ctx.scale(-1, 1);
+
+  //     // Draw cropped portion from the center of the image
+  //     const offsetX = Math.max(0, (imageData.width - targetWidth) / 2);
+  //     const offsetY = Math.max(0, (imageData.height - targetHeight) / 2);
+  //     ctx.drawImage(
+  //       tempCanvas,
+  //       offsetX,
+  //       offsetY,
+  //       targetWidth,
+  //       targetHeight,
+  //       0,
+  //       0,
+  //       targetWidth,
+  //       targetHeight
+  //     );
+
+  //     const base64Image = canvas.toDataURL("image/png");
+  //     setCamImg(base64Image);
+  //     // console.warn("base64Image", base64Image);
+  //     setCurrentState(2);
+  //   }
+  // };
+
   const captureImage = async () => {
     const imageData = await snapShorterRef.current.snapshot();
     if (imageData) {
+      const targetWidth = window.innerWidth;
+      const targetHeight = window.innerHeight;
+      const targetAspect = targetWidth / targetHeight;
+
+      const srcWidth = imageData.width;
+      const srcHeight = imageData.height;
+      const srcAspect = srcWidth / srcHeight;
+
+      // Calculate crop size to match window aspect ratio
+      let cropWidth, cropHeight;
+      if (srcAspect > targetAspect) {
+        // Source is wider than target — crop horizontally
+        cropHeight = srcHeight;
+        cropWidth = cropHeight * targetAspect;
+      } else {
+        // Source is taller than target — crop vertically
+        cropWidth = srcWidth;
+        cropHeight = cropWidth / targetAspect;
+      }
+
+      const cropX = (srcWidth - cropWidth) / 2;
+      const cropY = (srcHeight - cropHeight) / 2;
+
+      // Draw to a temporary canvas
       const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = imageData.width;
-      tempCanvas.height = imageData.height;
+      tempCanvas.width = cropWidth;
+      tempCanvas.height = cropHeight;
       const tempCtx = tempCanvas.getContext("2d");
-      tempCtx.putImageData(imageData, 0, 0);
-      const canvas = document.createElement("canvas");
-      canvas.width = imageData.width;
-      canvas.height = imageData.height;
-      const ctx = canvas.getContext("2d");
-      ctx.translate(canvas.width, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(tempCanvas, 0, 0);
-      const base64Image = canvas.toDataURL("image/png");
+
+      // Put the original image data in a canvas
+      const originalCanvas = document.createElement("canvas");
+      originalCanvas.width = srcWidth;
+      originalCanvas.height = srcHeight;
+      const originalCtx = originalCanvas.getContext("2d");
+      originalCtx.putImageData(imageData, 0, 0);
+
+      // Crop the center to match aspect ratio
+      tempCtx.drawImage(
+        originalCanvas,
+        cropX,
+        cropY,
+        cropWidth,
+        cropHeight,
+        0,
+        0,
+        cropWidth,
+        cropHeight
+      );
+
+      // Final canvas with flipped image and window size
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = targetWidth;
+      finalCanvas.height = targetHeight;
+      const finalCtx = finalCanvas.getContext("2d");
+
+      finalCtx.translate(targetWidth, 0); // Flip horizontally
+      finalCtx.scale(-1, 1);
+      finalCtx.drawImage(
+        tempCanvas,
+        0,
+        0,
+        cropWidth,
+        cropHeight,
+        0,
+        0,
+        targetWidth,
+        targetHeight
+      );
+
+      const base64Image = finalCanvas.toDataURL("image/png");
       setCamImg(base64Image);
       setCurrentState(2);
     }

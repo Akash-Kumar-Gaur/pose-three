@@ -34,25 +34,18 @@ function ResultPreview({ camImg, setCamImg, setRetake, setCurrentState }) {
 
   const generateQr = async () => {
     setUploading(true);
-    // const app = initializeApp(firebaseConfig);
-    // const storage = getStorage(app);
-    // console.warn("storage", storage);
-    // const storageRef = ref(storage, `images/${Date.now()}.png`);
-    // try {
-    //   await uploadString(storageRef, camImg, "data_url");
-    //   const url = await getDownloadURL(storageRef);
-    //   console.log("Uploaded image URL:", url);
-    //   setQrLink(url);
-    //   setUploading(false);
-    // } catch (error) {
-    //   console.error("Upload failed:", error);
-    // }
-    setTimeout(() => {
-      setQrLink(
-        "https://firebasestorage.googleapis.com/v0/b/outfit-ar-3d0a3.firebasestorage.app/o/images%2F1747860468685.png?alt=media&token=2395a389-bdb9-4ba7-bd80-39a7bce81903"
-      );
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+    const storageRef = ref(storage, `images/${Date.now()}.png`);
+    try {
+      await uploadString(storageRef, camImg, "data_url");
+      const url = await getDownloadURL(storageRef);
+      console.log("Uploaded image URL:", url);
+      setQrLink(url);
       setUploading(false);
-    }, 1000);
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
   };
 
   return (
@@ -185,8 +178,8 @@ function ResultPreview({ camImg, setCamImg, setRetake, setCurrentState }) {
                 setCamImg("");
                 //   localStorage.removeItem("gender");
                 //   initialized.current = null;
+                document.getElementById("webarFace").style.display = "none";
                 setCurrentState(1);
-                //   document.getElementById("outfitSlider").style.display = "block";
               }}
             >
               Retake
