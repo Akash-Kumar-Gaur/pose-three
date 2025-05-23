@@ -854,6 +854,7 @@ function ARViewDebug({ setCamImg, setCurrentState, retake = false }) {
                       height: "auto",
                       width: "100%",
                       objectFit: "contain",
+                      maxHeight: pixelsToVH(143.88),
                     }}
                   />
                   <div
